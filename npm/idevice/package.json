@@ -1,0 +1,34 @@
+{
+  "name": "@xcodekit/idevice",
+  "version": "0.1.0",
+  "description": "iOS device services for Node.js — napi-rs bindings for the idevice Rust crate",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "optionalDependencies": {
+    "@xcodekit/idevice-darwin-arm64": "0.1.0",
+    "@xcodekit/idevice-darwin-x64": "0.1.0",
+    "@xcodekit/idevice-linux-arm64-gnu": "0.1.0",
+    "@xcodekit/idevice-linux-x64-gnu": "0.1.0",
+    "@xcodekit/idevice-win32-x64-msvc": "0.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nichalas/idevice"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ios",
+    "idevice",
+    "apple",
+    "usbmuxd",
+    "lockdown",
+    "afc",
+    "native",
+    "napi",
+    "rust"
+  ]
+}

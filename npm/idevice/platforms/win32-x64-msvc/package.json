@@ -1,0 +1,20 @@
+{
+  "name": "@xcodekit/idevice-win32-x64-msvc",
+  "version": "0.1.0",
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "idevice.win32-x64-msvc.node",
+  "files": [
+    "idevice.win32-x64-msvc.node"
+  ],
+  "description": "Native binary for @xcodekit/idevice (win32-x64-msvc)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nichalas/idevice"
+  }
+}

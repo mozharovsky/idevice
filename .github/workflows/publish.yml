@@ -1,0 +1,129 @@
+name: Publish
+
+on:
+  push:
+    tags: ["v*"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build - ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            npm_dir: darwin-arm64
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            npm_dir: darwin-x64
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            npm_dir: linux-x64-gnu
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            npm_dir: linux-arm64-gnu
+            cross: true
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            npm_dir: win32-x64-msvc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Install zig
+        if: matrix.cross
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.13.0
+      - name: Build
+        run: npx napi build --platform --release --target ${{ matrix.target }} ${{ matrix.cross && '--zig' || '' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.npm_dir }}
+          path: "*.node"
+
+  test:
+    name: Test
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/download-artifact@v4
+        with:
+          name: bindings-darwin-arm64
+      - run: npm install
+      - run: npm test
+
+  publish:
+    name: Publish to npm
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: bindings-darwin-arm64
+          path: npm/idevice/platforms/darwin-arm64
+      - uses: actions/download-artifact@v4
+        with:
+          name: bindings-darwin-x64
+          path: npm/idevice/platforms/darwin-x64
+      - uses: actions/download-artifact@v4
+        with:
+          name: bindings-linux-x64-gnu
+          path: npm/idevice/platforms/linux-x64-gnu
+      - uses: actions/download-artifact@v4
+        with:
+          name: bindings-linux-arm64-gnu
+          path: npm/idevice/platforms/linux-arm64-gnu
+      - uses: actions/download-artifact@v4
+        with:
+          name: bindings-win32-x64-msvc
+          path: npm/idevice/platforms/win32-x64-msvc
+
+      - name: Publish platform packages
+        run: |
+          for dir in npm/idevice/platforms/*/; do
+            if [ -f "$dir/package.json" ] && ls "$dir"/*.node 1>/dev/null 2>&1; then
+              echo "Publishing $dir..."
+              (cd "$dir" && npm publish --access public) || true
+            fi
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - run: npm install
+      - run: npx napi build --platform --release --target x86_64-unknown-linux-gnu
+      - run: ./scripts/build-pkg.sh
+
+      - name: Publish @xcodekit/idevice
+        run: cd pkg/idevice && npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true

@@ -1,0 +1,20 @@
+{
+  "name": "@xcodekit/idevice-linux-x64-gnu",
+  "version": "0.1.0",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "idevice.linux-x64-gnu.node",
+  "files": [
+    "idevice.linux-x64-gnu.node"
+  ],
+  "description": "Native binary for @xcodekit/idevice (linux-x64-gnu)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nichalas/idevice"
+  }
+}

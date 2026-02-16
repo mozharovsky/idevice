@@ -1,0 +1,20 @@
+{
+  "name": "@xcodekit/idevice-darwin-arm64",
+  "version": "0.1.0",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "main": "idevice.darwin-arm64.node",
+  "files": [
+    "idevice.darwin-arm64.node"
+  ],
+  "description": "Native binary for @xcodekit/idevice (darwin-arm64)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nichalas/idevice"
+  }
+}
